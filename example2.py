@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os, dynamixel, time, random
 
 def actuators_moving(actuators):
