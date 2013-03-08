@@ -64,10 +64,8 @@ class Enumeration( object ):
         """
         result = []
         for key in self._values:
-            description = None
             value = self._values[ key ]
-            if key in self._descriptions:
-                description = self._descriptions[ key ]
+            description = self._descriptions.get(key)
             result.append( (key, value, description) )
         return result
     def key( self, value ):
