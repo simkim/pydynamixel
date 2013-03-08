@@ -27,7 +27,7 @@ import time
 import dynamixel
 
 class DynamixelInterface(object):
-    """ Interface to Dynamixel CM-5 """
+    """ Interface to Dynamixel CM-* """
     BROADCAST_ID = 254
     def __init__(self, strm):
         """ Constructor
@@ -76,7 +76,7 @@ class DynamixelInterface(object):
 
     
     def enter_toss_mode(self):
-        """ Try to put the CM-5 into Toss Mode 
+        """ Try to put the CM-* (CM-5, CM-530) into Toss Mode
 
         Returns true on success
         """
@@ -86,22 +86,22 @@ class DynamixelInterface(object):
         while state < 5:
             try:
                 if state == 0:
-                    # send a CR and look for a response from a CM-5 
+                    # send a CR and look for a response from a CM-*
                     # in manage mode
                     self._stream.write_byte('\r')
                     state = 1
                 elif state == 1:
-                    # look for a response from a CM-5
+                    # look for a response from a CM-*
                     buf += self._stream.read_byte() 
                     if len(buf) >= 3 and buf[-3:] == "[CM":
-                        # a CM-5 that has just been put into manage mode
+                        # a CM-* that has just been put into manage mode
                         # will respond to the first CR with a version 
-                        # string, e.g. "[CM-5 Version 1.15]" lengthen the
-                        # timeout because the CM-5 will scan for Dynamixels
+                        # string, e.g. "[CM-* Version 1.15]" lengthen the
+                        # timeout because the CM-* will scan for Dynamixels
                         self._stream.read_timeout = 750
                         state = 2
                     if len(buf) >= 3 and buf[-3:] == "[CI":
-                        # a CM-5 in manage mode that has already scanned 
+                        # a CM-* in manage mode that has already scanned
                         # will respond with a prompt string containing the
                         # ID of the current Dynamixel, e.g. "[CID:001(0x01)]"
                         # restore the shorter timeout
@@ -110,7 +110,7 @@ class DynamixelInterface(object):
                 elif state == 2:
                     buf += self._stream.read_byte() 
                     if len(buf) >= 3 and buf[-3:] == "[CI":
-                        # a CM-5 in manage mode that has already scanned 
+                        # a CM-* in manage mode that has already scanned
                         # will respond with a prompt string containing the
                         # ID of the current Dynamixel, e.g. "[CID:001(0x01)]"
                         # restore the shorter timeout
@@ -118,9 +118,9 @@ class DynamixelInterface(object):
                         state = 3
                 elif state == 3:
                     buf += self._stream.read_byte()
-                    if len(buf) >= 2 and buf[-2:] == "] ":
+                    if buf[-2:] == "] " or buf[-3:] == "]} ":
                         # found the end of the CID prompt
-                        # put the CM-5 in Toss Mode
+                        # put the CM-* in Toss Mode
                         self._stream.write_byte('t')
                         self._stream.write_byte('\r')
                         state = 4
@@ -133,9 +133,9 @@ class DynamixelInterface(object):
             except stream.TimeoutException:
                 self._stream.read_timeout = save_timeout
                 if state > 1:
-                    raise Exception("CM-5 detected but not in Managed Mode")
+                    raise Exception("CM-* detected but not in Managed Mode")
                 break
-        print "%d : %d" % (self._stream.read_timeout,
+        print "%s : %s" % (self._stream.read_timeout,
                            self._stream.write_timeout)
         return state == 5
 

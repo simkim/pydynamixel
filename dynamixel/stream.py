@@ -59,8 +59,8 @@ class Stream( object ):
     def set_write_timeout( self, value ):
         """ Set the Write Timeout """
         raise NotImplementedError()        
-    read_timeout = property( get_read_timeout, set_read_timeout )
-    write_timeout = property( get_write_timeout, set_write_timeout )
+    read_timeout = property( lambda self : self.get_read_timeout(), lambda self , v: self.set_read_timeout(v) )
+    write_timeout = property( lambda self : self.get_write_timeout(), lambda self, v : self.set_write_timeout(v) )
 
 class TimeoutException( Exception ):
     """ Timeout exception """
